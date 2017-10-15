@@ -2,14 +2,17 @@
 #include <sensor_msgs/Range.h>
 #include <std_msgs/Int16.h>
 
+// gets called whenever a new message is availible in the input puffer
 void uslCallback(sensor_msgs::Range::ConstPtr uslMsg, sensor_msgs::Range* usl){
   *usl = *uslMsg;
 }
 
+// gets called whenever a new message is availible in the input puffer
 void usfCallback(sensor_msgs::Range::ConstPtr usfMsg, sensor_msgs::Range* usf){
   *usf = *usfMsg;
 }
 
+// gets called whenever a new message is availible in the input puffer
 void usrCallback(sensor_msgs::Range::ConstPtr usrMsg, sensor_msgs::Range* usr){
   *usr = *usrMsg;
 }
@@ -39,9 +42,11 @@ int main(int argc, char **argv)
   ROS_INFO("Hello world!");
 
   // Loop starts here:
+  // loop rate value is set in Hz
   ros::Rate loop_rate(25);
   while (ros::ok())
   {
+    // simple wall crash avoidance algorithm ..
     if(usr.range<0.3 && usl.range>=0.3){
       steering.data = -750;
       motor.data = 300;
@@ -60,10 +65,13 @@ int main(int argc, char **argv)
       steering.data = 0;
     }
 
+    // publish command messages on their topics
     motorCtrl.publish(motor);
     steeringCtrl.publish(steering);
 
+    // clear input/output buffers
     ros::spinOnce();
+    // this is needed to ensure a const. loop rate
     loop_rate.sleep();
   }
 
